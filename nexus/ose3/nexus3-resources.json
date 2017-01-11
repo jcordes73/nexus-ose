@@ -2,7 +2,7 @@
    "kind": "List",
    "apiVersion": "v1",
    "metadata": {
-      "name": "nexus"
+      "name": "nexus3"
    },
    "items": [
       {
@@ -17,7 +17,7 @@
          "kind": "BuildConfig",
          "apiVersion": "v1",
          "metadata": {
-            "name": "nexus",
+            "name": "nexus3",
             "namespace": "ci"
          },
          "spec": {
@@ -37,29 +37,32 @@
                {
                   "type": "ImageChange",
                   "imageChange": {}
+               },
+               {
+                  "type": "ConfigChange"
                }
             ],
             "source": {
                "type": "Git",
                "git": {
-                  "uri": "https://github.com/jcordes73/nexus-ose",
+                  "uri": "https://github.com/jorgemoralespou/nexus-ose",
                   "ref": "master"
                },
-               "contextDir": "nexus/nexus-container"
+               "contextDir": "nexus/nexus3-container"
             },
             "strategy": {
                "type": "Docker",
                "dockerStrategy": {
                   "from": {
-                     "kind": "ImageStreamTag",
-                     "name": "rhel:7.2"
+                     "kind": "DockerImage",
+                     "name": "docker.io/sonatype/nexus3:3.0.2"
                   }
                }
             },
             "output": {
                "to": {
                   "kind": "ImageStreamTag",
-                  "name": "nexus:latest",
+                  "name": "nexus3:latest",
                   "namespace": "ci"
                }
             },
@@ -70,17 +73,17 @@
          "kind": "ImageStream",
          "apiVersion": "v1",
          "metadata": {
-            "name": "rhel"
+            "name": "sonatype-nexus3"
          },
          "spec": {
-            "dockerImageRepository": "registry.access.redhat.com/rhel"
+            "dockerImageRepository": "docker.io/sonatype/nexus3:3.0.2"
          }
       },
       {
          "kind": "ImageStream",
          "apiVersion": "v1",
          "metadata": {
-            "name": "nexus",
+            "name": "nexus3",
             "namespace": "ci"
          },
          "spec": {
@@ -96,50 +99,38 @@
          "kind": "Template",
          "apiVersion": "v1",
          "metadata": {
-            "name": "nexus-ephemeral",
+            "name": "nexus3-ephemeral",
             "namespace": "ci",
             "annotations": {
-               "description": "Nexus service, with ephemeral storage. Scaling to more than one replica is not supported",
-               "tags": "repository-managers,nexus"
+               "description": "Nexusx3 service, with ephemeral storage. Scaling to more than one replica is not supported",
+               "tags": "repository-managers,nexus3"
             }
          },
          "labels": {
-            "application": "nexus-ephemeral",
-            "createdBy": "template-nexus"
+            "application": "nexus3-ephemeral",
+            "createdBy": "template-nexus3"
          },
          "parameters": [
-            {
-               "description": "The Nexus admin login-name.",
-               "displayName": "Nexus Admin login.",
-               "name": "NEXUS_ADMIN_LOGIN_NAME",
-               "value": "admin"
-            },
-            {
-               "description": "The Nexus admin password.",
-               "displayName": "Nexus Admin password.",
-               "name": "NEXUS_ADMIN_PASSWORD",
-               "value": "admin123"
-            },
             {
                "description": "The name for the application. The service will be named like the application.",
                "displayName": "Application name.",
                "name": "APPLICATION_NAME",
-               "value": "nexus"
+               "value": "nexus3"
             },
             {
                "description": "Custom hostname for service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
-               "displayName": "Nexus instance hostname",
+               "displayName": "Nexus3 instance hostname",
                "name": "APPLICATION_HOSTNAME"
             },
             {
-               "description": "Nexus image name",
-               "displayName": "Nexus image name",
+               "description": "Nexus3 image name",
+               "displayName": "Nexus3 image name",
                "name": "IMAGE_NAME",
-               "value": "nexus"
+               "value": "nexus3"
             },
             {
-               "description": "Nexus image tag",
-               "displayName": "Nexus image tag",
+               "description": "Nexus3 image tag",
+               "displayName": "Nexus3 image tag",
                "name": "IMAGE_TAG",
                "value": "latest"
             }
@@ -149,39 +140,17 @@
                "kind": "DeploymentConfig",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus",
+                  "name": "nexus3",
                   "namespace": "ci"
                },
                "spec": {
                   "strategy": {
-<<<<<<< HEAD
-                     "type": "Rolling",
-                     "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "post": {
-                            "failurePolicy": "Ignore",
-                            "execNewPod": {
-                               "containerName": "nexus",
-                               "command": [
-                                  "/usr/local/bin/addjbossrepos.sh"
-                               ],
-                               "env": [
-                                  {
-                                     "name": "APPLICATION_HOSTNAME",
-                                     "value": "${APPLICATION_HOSTNAME}"
-                                  }
-                               ]
-                            }
-                         }
-=======
                      "type": "Recreate",
                      "recreateParams": {
                         "post": {
                            "failurePolicy": "Ignore",
                            "execNewPod": {
-                              "containerName": "nexus",
+                              "containerName": "nexus3",
                               "command": [
                                  "/bin/bash",
                                  "/usr/local/bin/addjbossrepos.sh"
@@ -189,12 +158,11 @@
                               "env": [
                                  {
                                     "name": "NEXUS_BASE_URL",
-                                    "value":"http://nexus:8081"
+                                    "value":"http://nexus3:8081"
                                  }
                               ]
                            }
                         }
->>>>>>> upstream/master
                      },
                      "resources": {}
                   },
@@ -207,7 +175,7 @@
                         "imageChangeParams": {
                            "automatic": true,
                            "containerNames": [
-                              "nexus"
+                              "nexus3"
                            ],
                            "from": {
                               "kind": "ImageStreamTag",
@@ -219,12 +187,12 @@
                   ],
                   "replicas": 1,
                   "selector": {
-                     "deploymentconfig": "nexus"
+                     "deploymentconfig": "nexus3"
                   },
                   "template": {
                      "metadata": {
                         "labels": {
-                           "deploymentconfig": "nexus"
+                           "deploymentconfig": "nexus3"
                         }
                      },
                      "spec": {
@@ -238,8 +206,8 @@
                         ],
                         "containers": [
                            {
-                              "name": "nexus",
-                              "image": "nexus",
+                              "name": "nexus3",
+                              "image": "nexus3",
                               "ports": [
                                  {
                                     "containerPort": 8081,
@@ -249,21 +217,29 @@
                               "volumeMounts": [
                                  {
                                     "name": "pvol",
-                                    "mountPath": "/sonatype-work"
+                                    "mountPath": "/nexus-data"
                                  }
                               ],
                               "livenessProbe": {
-                                 "httpGet": {
-                                    "port": 8081
+                                 "exec": {
+                                    "command": [
+                                       "/bin/bash",
+                                       "-c",
+                                       "/usr/local/bin/livenessProbe.sh"
+                                    ]
                                  },
-                                 "initialDelaySeconds": 300,
-                                 "timeoutSeconds": 1
+                                 "initialDelaySeconds": 30,
+                                 "timeoutSeconds": 60
                               },
                               "readinessProbe": {
-                                 "httpGet": {
-                                    "port": 8081
+                                 "exec": {
+                                    "command": [
+                                       "/bin/bash",
+                                       "-c",
+                                       "/usr/local/bin/readinessProbe.sh"
+                                    ]
                                  },
-                                 "initialDelaySeconds": 20,
+                                 "initialDelaySeconds": 30,
                                  "timeoutSeconds": 1
                               },
                               "resources": {
@@ -276,17 +252,7 @@
                               "securityContext": {
                                  "capabilities": {},
                                  "privileged": false
-                              },
-                              "env": [
-                                 {
-                                    "name": "NEXUS_ADMIN_LOGIN_NAME",
-                                    "value": "${NEXUS_ADMIN_LOGIN_NAME}"
-                                 },
-                                 {
-                                    "name": "NEXUS_ADMIN_PASSWORD",
-                                    "value": "${NEXUS_ADMIN_PASSWORD}"
-                                 }
-                              ]
+                              }
                            }
                         ],
                         "restartPolicy": "Always",
@@ -301,14 +267,14 @@
                "kind": "Route",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus",
+                  "name": "nexus3",
                   "namespace": "ci"
                },
                "spec": {
                   "host": "${APPLICATION_HOSTNAME}",
                   "to": {
                      "kind": "Service",
-                     "name": "nexus"
+                     "name": "nexus3"
                   }
                }
             },
@@ -316,7 +282,7 @@
                "kind": "Service",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus",
+                  "name": "nexus3",
                   "namespace": "ci"
                },
                "spec": {
@@ -328,7 +294,7 @@
                      }
                   ],
                   "selector": {
-                     "deploymentconfig": "nexus"
+                     "deploymentconfig": "nexus3"
                   },
                   "type": "ClusterIP",
                   "sessionAffinity": "None"
@@ -340,39 +306,27 @@
          "kind": "Template",
          "apiVersion": "v1",
          "metadata": {
-            "name": "nexus-persistent",
+            "name": "nexus3-persistent",
             "namespace": "ci",
             "annotations": {
-               "description": "Nexus service, with persistent storage. Scaling to more than one replica is not supported",
-               "tags": "repository-managers,nexus"
+               "description": "Nexus3 service, with persistent storage. Scaling to more than one replica is not supported",
+               "tags": "repository-managers,nexus3"
             }
          },
          "labels": {
-            "application": "nexus-persistent",
-            "createdBy": "template-nexus"
+            "application": "nexus3-persistent",
+            "createdBy": "template-nexus3"
          },
          "parameters": [
-            {
-               "description": "The Nexus admin login-name.",
-               "displayName": "Nexus Admin login.",
-               "name": "NEXUS_ADMIN_LOGIN_NAME",
-               "value": "admin"
-            },
-            {
-               "description": "The Nexus admin password.",
-               "displayName": "Nexus Admin password.",
-               "name": "NEXUS_ADMIN_PASSWORD",
-               "value": "admin123"
-            },
             {
                "description": "The name for the application. The service will be named like the application.",
                "displayName": "Application name.",
                "name": "APPLICATION_NAME",
-               "value": "nexus"
+               "value": "nexus3"
             },
             {
                "description": "Custom hostname for service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
-               "displayName": "Nexus instance hostname",
+               "displayName": "Nexus3 instance hostname",
                "name": "APPLICATION_HOSTNAME"
             },
             {
@@ -382,14 +336,14 @@
                "value": "5Gi"
             },
             {
-               "description": "Nexus image name",
-               "displayName": "Nexus image name",
+               "description": "Nexus3 image name",
+               "displayName": "Nexus3 image name",
                "name": "IMAGE_NAME",
-               "value": "nexus"
+               "value": "nexus3"
             },
             {
-               "description": "Nexus image tag",
-               "displayName": "Nexus image tag",
+               "description": "Nexus3 image tag",
+               "displayName": "Nexus3 image tag",
                "name": "IMAGE_TAG",
                "value": "latest"
             }
@@ -399,7 +353,7 @@
                "kind": "PersistentVolumeClaim",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus-claim",
+                  "name": "nexus3-claim",
                   "namespace": "ci"
                },
                "spec": {
@@ -411,58 +365,35 @@
                         "storage": "${SIZE}"
                      }
                   },
-                  "volumeName": "nexus-pv"
+                  "volumeName": "nexus3-pv"
                }
             },
             {
                "kind": "DeploymentConfig",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus",
+                  "name": "nexus3",
                   "namespace": "ci"
                },
                "spec": {
                   "strategy": {
-<<<<<<< HEAD
-                     "type": "Rolling",
-                     "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "post": {
-                            "failurePolicy": "Ignore",
-                            "execNewPod": {
-                               "containerName": "nexus",
-                               "command": [
-                                  "/usr/local/bin/addjbossrepos.sh"
-                               ],
-                               "env": [
-                                  {
-                                     "name": "APPLICATION_HOSTNAME",
-                                     "value": "${APPLICATION_HOSTNAME}"
-                                  }
-                               ]
-                            }
-                         }
-=======
                      "type": "Recreate",
                      "recreateParams": {
                         "post": {
                            "failurePolicy": "Ignore",
                            "execNewPod": {
-                              "containerName": "nexus",
+                              "containerName": "nexus3",
                               "command": [
                                  "/usr/local/bin/addjbossrepos.sh"
                               ],
                               "env": [
                                  {
                                     "name": "NEXUS_BASE_URL",
-                                    "value":"http://nexus:8081"
+                                    "value":"http://nexus3:8081"
                                  }
                               ]
                            }
                         }
->>>>>>> upstream/master
                      },
                      "resources": {}
                   },
@@ -475,7 +406,7 @@
                         "imageChangeParams": {
                            "automatic": true,
                            "containerNames": [
-                              "nexus"
+                              "nexus3"
                            ],
                            "from": {
                               "kind": "ImageStreamTag",
@@ -487,12 +418,12 @@
                   ],
                   "replicas": 1,
                   "selector": {
-                     "deploymentconfig": "nexus"
+                     "deploymentconfig": "nexus3"
                   },
                   "template": {
                      "metadata": {
                         "labels": {
-                           "deploymentconfig": "nexus"
+                           "deploymentconfig": "nexus3"
                         }
                      },
                      "spec": {
@@ -500,14 +431,14 @@
                            {
                               "name": "pvol",
                               "persistentVolumeClaim": {
-                                 "claimName": "nexus-claim"
+                                 "claimName": "nexus3-claim"
                               }
                            }
                         ],
                         "containers": [
                            {
-                              "name": "nexus",
-                              "image": "nexus",
+                              "name": "nexus3",
+                              "image": "nexus3",
                               "ports": [
                                  {
                                     "containerPort": 8081,
@@ -521,17 +452,25 @@
                                  }
                               ],
                               "livenessProbe": {
-                                 "httpGet": {
-                                    "port": 8081
+                                 "exec": {
+                                    "command": [
+                                       "/bin/bash",
+                                       "-c",
+                                       "/usr/local/bin/livenessProbe.sh"
+                                    ]
                                  },
-                                 "initialDelaySeconds": 180,
-                                 "timeoutSeconds": 1
+                                 "initialDelaySeconds": 30,
+                                 "timeoutSeconds": 60
                               },
                               "readinessProbe": {
-                                 "httpGet": {
-                                    "port": 8081
+                                 "exec": {
+                                    "command": [
+                                       "/bin/bash",
+                                       "-c",
+                                       "/usr/local/bin/readinessProbe.sh"
+                                    ]
                                  },
-                                 "initialDelaySeconds": 20,
+                                 "initialDelaySeconds": 30,
                                  "timeoutSeconds": 1
                               },
                               "resources": {
@@ -544,17 +483,7 @@
                               "securityContext": {
                                  "capabilities": {},
                                  "privileged": false
-                              },
-                              "env": [
-                                 {
-                                    "name": "NEXUS_ADMIN_LOGIN_NAME",
-                                    "value": "${NEXUS_ADMIN_LOGIN_NAME}"
-                                 },
-                                 {
-                                    "name": "NEXUS_ADMIN_PASSWORD",
-                                    "value": "${NEXUS_ADMIN_PASSWORD}"
-                                 }
-                              ]
+                              }
                            }
                         ],
                         "restartPolicy": "Always",
@@ -569,14 +498,14 @@
                "kind": "Route",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus",
+                  "name": "nexus3",
                   "namespace": "ci"
                },
                "spec": {
                   "host": "${APPLICATION_HOSTNAME}",
                   "to": {
                      "kind": "Service",
-                     "name": "nexus"
+                     "name": "nexus3"
                   }
                }
             },
@@ -584,7 +513,7 @@
                "kind": "Service",
                "apiVersion": "v1",
                "metadata": {
-                  "name": "nexus",
+                  "name": "nexus3",
                   "namespace": "ci"
                },
                "spec": {
@@ -596,7 +525,7 @@
                      }
                   ],
                   "selector": {
-                     "deploymentconfig": "nexus"
+                     "deploymentconfig": "nexus3"
                   },
                   "type": "ClusterIP",
                   "sessionAffinity": "None"

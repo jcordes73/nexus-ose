@@ -4,7 +4,7 @@ MAINTAINER Jochen Cordes <jcordes@redhat.com>
 
 EXPOSE 8081
 
-ENV NEXUS_VERSION 2.13.0-01
+ENV NEXUS_VERSION 2.14.0-01
 ENV NEXUS_HOME /opt/nexus/nexus
 ENV NEXUS_WORK /sonatype-work
 ENV NEXUS_REPOS /repositories
@@ -27,7 +27,7 @@ RUN mkdir -p /opt/nexus/nexus \
   && mv /tmp/nexus-${NEXUS_VERSION}/* /opt/nexus/nexus/ \
   && rm -rf /tmp/nexus-${NEXUS_VERSION}
 
-RUN  chmod 777 $NEXUS_HOME \ 
+RUN chmod 777 $NEXUS_HOME \
    && mkdir -p $NEXUS_WORK && chmod -R 777 $NEXUS_WORK \
    && mkdir -p $NEXUS_REPOS && chmod -R 777 $NEXUS_REPOS \
    && mkdir -p /conf && chmod -R 777 /conf
@@ -39,14 +39,14 @@ COPY scripts/fixPermissions.sh /usr/local/bin/fixPermissions.sh
 COPY scripts/addrepo.sh /usr/local/bin/addrepo.sh
 COPY scripts/addjbossrepos.sh /usr/local/bin/addjbossrepos.sh
 
-RUN chmod 755 /usr/local/bin/fixPermissions.sh 
-RUN chmod 755 /usr/local/bin/readinessProbe.sh
-RUN chmod 755 /usr/local/bin/addrepo.sh
-RUN chmod 755 /usr/local/bin/addjbossrepos.sh
-RUN  /usr/local/bin/fixPermissions.sh /opt/nexus
-RUN  /usr/local/bin/fixPermissions.sh $NEXUS_WORK
-RUN  /usr/local/bin/fixPermissions.sh $NEXUS_REPOS
-RUN  /usr/local/bin/fixPermissions.sh /conf
+RUN chmod 755 /usr/local/bin/fixPermissions.sh \
+  && chmod 755 /usr/local/bin/readinessProbe.sh \
+  && chmod 755 /usr/local/bin/addrepo.sh \
+  && chmod 755 /usr/local/bin/addjbossrepos.sh \
+  && /usr/local/bin/fixPermissions.sh /opt/nexus \
+  && /usr/local/bin/fixPermissions.sh $NEXUS_WORK \
+  && /usr/local/bin/fixPermissions.sh $NEXUS_REPOS \
+  && /usr/local/bin/fixPermissions.sh /conf
 
 USER 185
 
