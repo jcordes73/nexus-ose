@@ -154,7 +154,6 @@
                },
                "spec": {
                   "strategy": {
-<<<<<<< HEAD
                      "type": "Rolling",
                      "rollingParams": {
                         "updatePeriodSeconds": 1,
@@ -175,26 +174,6 @@
                                ]
                             }
                          }
-=======
-                     "type": "Recreate",
-                     "recreateParams": {
-                        "post": {
-                           "failurePolicy": "Ignore",
-                           "execNewPod": {
-                              "containerName": "nexus",
-                              "command": [
-                                 "/bin/bash",
-                                 "/usr/local/bin/addjbossrepos.sh"
-                              ],
-                              "env": [
-                                 {
-                                    "name": "NEXUS_BASE_URL",
-                                    "value":"http://nexus:8081"
-                                 }
-                              ]
-                           }
-                        }
->>>>>>> upstream/master
                      },
                      "resources": {}
                   },
@@ -423,7 +402,6 @@
                },
                "spec": {
                   "strategy": {
-<<<<<<< HEAD
                      "type": "Rolling",
                      "rollingParams": {
                         "updatePeriodSeconds": 1,
@@ -444,25 +422,6 @@
                                ]
                             }
                          }
-=======
-                     "type": "Recreate",
-                     "recreateParams": {
-                        "post": {
-                           "failurePolicy": "Ignore",
-                           "execNewPod": {
-                              "containerName": "nexus",
-                              "command": [
-                                 "/usr/local/bin/addjbossrepos.sh"
-                              ],
-                              "env": [
-                                 {
-                                    "name": "NEXUS_BASE_URL",
-                                    "value":"http://nexus:8081"
-                                 }
-                              ]
-                           }
-                        }
->>>>>>> upstream/master
                      },
                      "resources": {}
                   },
