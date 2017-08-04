@@ -389,8 +389,7 @@
                      "requests": {
                         "storage": "${SIZE}"
                      }
-                  },
-                  "volumeName": "nexus-pv"
+                  }
                }
             },
             {
